@@ -61,6 +61,7 @@ SC_MODULE(mem_testbench) {
         wait();
         wait();
         data_s = data.read(); 
+        wait(); 
 
         while(complete.read() == true){
             if(reset.read()==true) break;

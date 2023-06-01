@@ -126,7 +126,12 @@ SC_MODULE(mem_ctrl) {
 			if (reset.read() == true) break;
 			wait();
 		}
-		if (comm_s == RDBYT) data.write(Z);	// stop driving
+        cout << "THE VALUE OF COM_S IS: " << comm_s << endl;
+		if (comm_s == 2 || comm_s == 3){
+            cout << "WHAT THE FUCK" << endl;
+            data.write(Z);
+            wait();
+        } 	// stop driving
        // data.write(Z);
 		complete.write(false);
 	    }

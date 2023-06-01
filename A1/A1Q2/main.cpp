@@ -1,6 +1,6 @@
 #include "systemc.h"
 #include "stim.h"
-#include "filterA1.h"
+#include "filter.h"
 #include "mon.h"
 
 int sc_main(int argc, char* argv[])
@@ -11,11 +11,12 @@ int sc_main(int argc, char* argv[])
   //Initial value will be false (default)
   sc_clock TestClk("TestClock", 20, SC_NS, 0.5, 1, SC_NS); 
 
-  filterA1 Filter1("Filter");
-  Filter1.clock(TestClk);
-  Filter1.reset(reset);
-  Filter1.x(xSig);
-  Filter1.y(ySig);
+  //Future note I used a different var for clock each .h file this is confusing dont do that
+  filter Filter("Filter");
+  Filter.clock(TestClk);
+  Filter.reset(reset);
+  Filter.x(xSig);
+  Filter.y(ySig);
   
   stim Stim1("Stimulus");
   Stim1.x(xSig);
@@ -35,7 +36,7 @@ int sc_main(int argc, char* argv[])
   sc_trace(Tf, reset  , "reset" );
   sc_trace(Tf, TestClk, "Clock");
 
-  sc_start(200, SC_NS);  // run for 120 ns (12 clock cycles)
+  sc_start(300, SC_NS);  // run for 260 ns (12 clock cycles)
   sc_close_vcd_trace_file(Tf);
   
   return 0;

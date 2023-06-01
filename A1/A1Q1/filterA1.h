@@ -33,10 +33,15 @@ SC_MODULE(filterA1)
                 R4out.write(0);
             }
             else {
+                
+                //x and y outputs
                 R0out.write(x.read());
-                R3out.write(y.read()); //Do I need to change y to R3in.read() and set R3 in as a copy of y?
-                //R3out.write(R3in.read());
+                R3out.write(y.read());
 
+                //output of z registers (mapped in comment above)
+                R1out.write(R0out.read());
+                R2out.write(R1out.read());
+                R4out.write(R3out.read());
             }
             wait();
         }
@@ -47,22 +52,20 @@ SC_MODULE(filterA1)
         float R0s = R0out.read(); 
         float R1s = R1out.read();
         float R2s = R2out.read();
-        float R3s = R3out.read();
         float R4s = R4out.read();
 
-        y.write((xs*a0 + R0s*a1 + R1s*a2  + R2s*a3) + R3s*R4s*a4);
+        y.write((xs*a0 + R0s*a1 + R1s*a2  + R2s*a3) + R4s*a4);
 
         // float var = (xs*a0 + R0s*a1 + R1s*a2  + R2s*a3) + R3s*R4s*a4;
         // y.write(var);
         // R3in.write(var);
     }
-
-
     SC_CTOR(filterA1)
-    {
+    {   
+        //For next state logic outputs of z registers
         SC_METHOD(comb_proc); 
         sensitive << x << R0out << R1out << R2out << R3out << R4out;
-
+        
         SC_CTHREAD(seq_proc, clock.pos());
 
         a0 = 0.1667;

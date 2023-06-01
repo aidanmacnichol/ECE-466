@@ -13,11 +13,12 @@ SC_MODULE(stim)
   {
     x.write(false);
     reset.write(true);
-    wait(10, SC_NS);
+    wait();
     reset.write(false);
     x.write(true);
-    wait(10, SC_NS);
+    wait();
     x.write(false);
+    wait();
   }
 
     // sc_stop();

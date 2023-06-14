@@ -1,0 +1,31 @@
+Trying to make sense of this project rn 
+
+dh = diffie-Hellman
+
+> Need to impliment handshaking between hw/sw.
+    - Do this with enable-done in dh_hw & dh_sw
+
+> Example handshaking in hardware: 
+    - HW wait for hw_enable = true from SW 
+    - HW performs computation [NN_DigitDiv()]
+    - HW asserts hw_done = true 
+    - SW deasserts hw_enable & HW deasserts hw_done
+
+> To do list for HW:
+    - add a clock input
+    - FSM with 3 states:
+    1. WAIT: 
+        deassert hw_done = false and wait for hw_enable = true 
+        then go to EXECUTE
+    2. EXECUTE: 
+        read input, do computations and write output while keeping
+        hw_done = false then go to FINISH
+    3. FINISH:
+        make hw_done = true and wait for hw_enable = false
+        then go to WAIT
+
+
+> EXECUTE will have a few states within it:
+    1. INPUT:
+        assert load input; to to EXE_R0
+    2.

@@ -1,6 +1,5 @@
-//Partial code example for consumer "consumer.h":
-
-//...
+#include "systemc.h"
+#include "fifo_if.h"
 
 template <class T> class consumer : public sc_module 
 {
@@ -11,18 +10,24 @@ public:
   void do_reads()
   {
     T data;
-    int i = 0; 
-    while (true) 
+
+    while(true)
     {
-        wait();
-      //DO MORE HERE
-      //HM so we need to specify size at construct so maybe use T here and thats how we know to redo
-      
-      if (in->read(data)) 
-        cout << "R " << data << " at " << sc_time_stamp() << endl;
-	
-//      ...
+
+        if(in->read(data)){
+          cout << "R " << data << " at " << sc_time_stamp() << endl;
+        }
+
+        wait(); 
     }
+  }
+
+  SC_CTOR(consumer)
+  {
+    SC_THREAD(do_reads); 
+    sensitive << Clock.pos(); dont_initialize(); 
   } 
+
+};
+
   
-//...

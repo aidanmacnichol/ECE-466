@@ -1,15 +1,18 @@
+#ifndef FIFO_IF_H
+#define FIFO_IF_H
+
 #include "systemc.h"
 
-class fifo_out_if :  virtual public sc_interface
+template <class T> class fifo_out_if: virtual public sc_interface
 {
-public:
-  virtual void write(char) = 0;          // blocking write
-  virtual int num_free() const = 0;      // free entries
+  public:
+  virtual bool write(T) = 0;
 };
 
-class fifo_in_if :  virtual public sc_interface
+template <class T> class fifo_in_if: virtual public sc_interface
 {
-public:
-  virtual void read(char&) = 0;          // blocking read
-  virtual int num_available() const = 0; // available entries
+  public:
+  virtual bool read(T&) = 0;
 };
+
+#endif

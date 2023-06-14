@@ -1,89 +1,107 @@
 #include "systemc.h"
 #include "fifo_if.h"
+// I declare size here as im confused at how  
+// to declare an array in private variables
+// as we do not know the size yet
 
-class fifo
-: public sc_prim_channel, public fifo_out_if,
-  public fifo_in_if
+template <class T> class fifo: public sc_module, public fifo_out_if <T>, public fifo_in_if <T>
 {
-protected:
-  int size;                 // size
-  char* buf;                // fifo buffer
-  int free;                 // free space
-  int ri;                   // read index
-  int wi;                   // write index
-  int num_readable;
-  int num_read;
-  int num_written;
+  private: 
+    T* data;
+    int size;
 
-  sc_event data_read_event;
-  sc_event data_written_event;
+    int free;        // Free space
+    int ri;         // Read Index
+    int wi;         // Write Index
 
-public:
-  // constructor
-  fifo (const char* nm, int size_ = 16)
-  : sc_prim_channel(nm)
-  {
-    size = size_;
-    buf = new char[size];
-    reset();
-  }
+    bool read_flag;
+    bool write_flag;
+    bool read_status;
+    bool write_status;
 
-  ~fifo()                   //destructor
-  {
-    delete [] buf;
-  }
+    T write_T;
+    T* read_T;
 
+    sc_event read_req;//data_read_event;
+    sc_event write_req; //data_written_event;
+    sc_event done; 
 
-  int num_available() const
-  {
-    return num_readable - num_read;
-  }
+  public:
+    // Constructor size???
+      SC_HAS_PROCESS(fifo);
+      fifo(sc_module_name nm, int size_) : sc_module(nm)
+      { 
+        size = size_;
+        free = size; 
+        data = new T[size];
+        ri = 0;
+        wi = 0;
 
-  int num_free() const
-  {
-    return size - num_readable - num_written;
-  }
+        read_flag = false;
+        write_flag = false; 
+        read_status = false; 
+        write_status = false;
 
+        SC_THREAD(arbitrator);
+        sensitive << read_req << write_req; //dont_initialize(); 
 
-  void write(char c)        // blocking write
-  {
-    if (num_free() == 0) wait(data_read_event);
-    num_written++;
-    buf[wi] = c;
-    wi = (wi + 1) % size;
-    free--;
-    request_update();
-  }
+      }
 
+    void arbitrator(){
 
-  void reset()
-  {
-    free = size;
-    ri = 0;
-    wi = 0;
-    num_readable = size - free;
-    num_read = 0;
-    num_written = 0;
-  }
+      while(1){
+        //cout << "in arbitrator" << endl;
+
+        if (read_flag){ // Read flag highest prio
+          read_flag = false;
+
+          if(free < size){ // fifo not empty 
+            *read_T = data[ri]; // read from data
+            ri = (ri + 1) % size; //increase read index
+            free++; // FIFO availability increased by one
+            read_status = true;
+
+          } 
+          else read_status = false; 
+          }
 
 
-  void read(char& c)        // blocking read
-  {
-    if (num_available() == 0) wait(data_written_event);
-    num_read++;
-    c = buf[ri];
-    ri = (ri + 1) % size;
-    free++;
-    request_update();
-  }
+        if(write_flag){
+          write_flag = false; 
+
+          if (free > 0){ // Make sure fifo is not full
+            
+            data[wi] = write_T; // write to data
+            wi = (wi + 1) % size; //increase write index
+            free--; // fifo availability reduced by one
+            write_status = true;
+
+          } 
+          else write_status = false;
+          }
+
+        done.notify();
+        wait(); 
+      }
+    }
 
 
-  void update()
-  {
-    if (num_read > 0) data_read_event.notify(0, SC_NS);
-    if (num_written > 0) data_written_event.notify(0, SC_NS);
-    num_readable = size - free;
-    num_read = 0;
-    num_written = 0;
-  }
+    bool write(T data)
+    {
+      write_flag = true;
+      write_T = data;
+      write_req.notify();
+      wait(done);
+      return write_status;
+    }
+
+    bool read(T& data)
+    {
+      read_flag = true;
+      read_T = &data;
+      read_req.notify();
+      wait(done);
+      return read_status; 
+    }
 };
+

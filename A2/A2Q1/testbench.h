@@ -44,6 +44,7 @@ SC_MODULE(mem_testbench) {
         wait();
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait(); 
         }
         new_comm.write(false); 
@@ -60,6 +61,7 @@ SC_MODULE(mem_testbench) {
         wait();
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait(); 
         }
 
@@ -77,6 +79,7 @@ SC_MODULE(mem_testbench) {
         wait(); 
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait(); 
         }
 
@@ -94,6 +97,7 @@ SC_MODULE(mem_testbench) {
         wait(); 
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait();
         }
         new_comm.write(false);
@@ -121,6 +125,7 @@ SC_MODULE(mem_testbench) {
         wait();
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait();
         }
         new_comm.write(false);
@@ -137,6 +142,7 @@ SC_MODULE(mem_testbench) {
         wait();
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait(); 
         }
 
@@ -164,6 +170,7 @@ SC_MODULE(mem_testbench) {
         wait();
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait(); 
         }
 
@@ -183,6 +190,7 @@ SC_MODULE(mem_testbench) {
         wait(); 
 
         while(complete.read() == false){
+            if(rest.read() == true) break; 
             wait();
         }
         new_comm.write(false);

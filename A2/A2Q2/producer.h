@@ -1,6 +1,5 @@
-//Partial code example for producer "producer.h":
-
-//...
+#include "systemc.h"
+#include "fifo_if.h"
 
 template <class T> class producer : public sc_module 
 {
@@ -11,21 +10,22 @@ public:
   void do_writes()
   {
     T data = 0;
-    int i = 0; //I added this i the fuck would i use T for 
-    //HMMMM so we need to specify size at construct so maybe use T here and thats how we know to redo
+    int i = 0; 
     while (true) 
-    {
-      wait();  
-      if (out->write(data)) 
-        cout << "W " << /*data cant i just use an int?*/ i << " at " << sc_time_stamp() << endl;
-        i = (i+1) % 10; 
+    { 
+      //cout << "In Producer" << endl;
+      if (out->write(data)){ 
+        cout << "W " << data << " at " << sc_time_stamp() << endl;
+      }
+      data = (data+1) % 10; // 0-9, size 10
+      wait(); 
     }
   }
 
   SC_CTOR(producer)
   {
   SC_THREAD(do_writes);
-  sensitive << Clock.pos();
+  sensitive << Clock.pos(); dont_initialize();
   }
 };
 

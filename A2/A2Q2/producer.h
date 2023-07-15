@@ -10,14 +10,19 @@ public:
   void do_writes()
   {
     T data = 0;
-    int i = 0; 
+
     while (true) 
     { 
       //cout << "In Producer" << endl;
       if (out->write(data)){ 
         cout << "W " << data << " at " << sc_time_stamp() << endl;
       }
-      data = (data+1) % 10; // 0-9, size 10
+      data = (data+1); 
+
+      if(data == 10)
+      {
+        data = 0; 
+      } 
       wait(); 
     }
   }

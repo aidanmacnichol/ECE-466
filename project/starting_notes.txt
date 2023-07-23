@@ -29,3 +29,18 @@ dh = diffie-Hellman
     1. INPUT:
         assert load input; to to EXE_R0
     2.
+
+
+> WHAT I CHANGED
+    - changed sc_fifo channels to sc_in/out in dh_sw.h 
+    - added hw_done sensitivity to dh_sw
+    - changed sc_fifo channels to sc_in/out in dh_hw.h
+    - changed sc_fifo channels to sc_signal in dhdemo.cpp
+
+
+    - Added the WAIT, EXECUTE and FINISH case statement to dh_hw.cpp
+
+    - Added handshaking to NN_DigitDivHH() just following slides
+    
+
+    - added test clock to dhdemo.cpp as linked it to dh_hw clock 

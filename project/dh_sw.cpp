@@ -462,18 +462,34 @@ NN_DIGIT t[2],
 NN_DIGIT c
 )
 {
+
+  hw_enable.write(true);
+
+
   to_hw0.write(t[0]);
   to_hw1.write(t[1]);
   to_hw2.write(c);
   to_hw3.write(aHigh);
-  
-// This computation is now performed in hardware.
-/* Synchronization is done via blocking read/write 
-   (to be replaced by handshaking). */
+
+
+// from slide 14 - SW handshaking protocol  
+
+  while(hw_done.read() == false){
+    wait();
+  }
 
   t[0] = from_hw0.read();
   t[1] = from_hw1.read();
   aHigh = from_hw2.read();
+  hw_enable.write(false); 
+
+  while(hw_done.read() == true){
+    wait(); 
+  }
+  
+// This computation is now performed in hardware.
+/* Synchronization is done via blocking read/write 
+   (to be replaced by handshaking). */
   
 }
 

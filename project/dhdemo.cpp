@@ -5,7 +5,7 @@
 
 int sc_main(int argc , char *argv[]) {
 
-	sc_signal <bool> enable, done;
+	sc_signal <bool> enable{"enable"}, done;
 
 	// Important: All FIFOs are of size 1.
 
@@ -13,7 +13,7 @@ int sc_main(int argc , char *argv[]) {
 	// sc_signal <NN_HALF_DIGIT> ch3(1), ch6(1);
 
 	sc_signal<NN_DIGIT> ch0, ch1, ch2, ch4, ch5;
-	sc_signal <NN_HALF_DIGIT> ch3, ch6;
+	sc_signal <NN_HALF_DIGIT> ch3, ch6{"ch6"};
 
 
   	sc_clock clk("clk", 10, SC_NS, 0.5, 1, SC_NS);

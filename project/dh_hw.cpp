@@ -13,9 +13,6 @@
 void dh_hw::process_hw()
 {
 
-  NN_DIGIT t[2];
-  NN_HALF_DIGIT aHigh, cLow, cHigh;
-
   sc_uint <5> state = WAIT_STATE;
 
   //initially false
@@ -23,7 +20,7 @@ void dh_hw::process_hw()
   
   for (;;) {  
   
-      //initial state is wait
+      //reset register load flags
       ld_t1_in.write(0); 
       ld_t0_in.write(0);
       ld_c_in.write(0); 
@@ -45,36 +42,34 @@ void dh_hw::process_hw()
         
 
         case INPUT_STATE:
+          //Load Input Registers
           ld_t1_in.write(1); 
           ld_t0_in.write(1);
           ld_c_in.write(1); 
-          ld_aHigh_in.write(1); 
-          wait(); 
-          wait(); 
+          ld_aHigh_in.write(1);
+           
           state = EXECUTE_REQUIRED_STATE; 
           break; 
         
         
         case EXECUTE_REQUIRED_STATE:
-          wait(); 
+          //Required done, set bonus ready
+          bonus_ready.write(1);
+
           state = EXECUTE_BONUS_STATE; 
           break; 
 
         case EXECUTE_BONUS_STATE:
-          bonus_ready.write(1); 
-          wait(); 
+          //Bonus done, load output registers
+          ld_t0_out.write(1);
+          ld_t1_out.write(1);
+          ld_aHigh_out.write(1);
+
           state = OUTPUT_STATE; 
           break; 
 
         case OUTPUT_STATE:
-          //throw std::invalid_argument("in output state");
-          bonus_ready.write(0); 
-          ld_t0_out.write(1);
-          ld_t1_out.write(1);
-          ld_aHigh_out.write(1);
-          wait();
-          wait();   
-
+          //write output values
           to_sw0.write(t0_out.read());
           to_sw1.write(t1_out.read());
           to_sw2.write(aHigh_out.read()); 
@@ -90,41 +85,9 @@ void dh_hw::process_hw()
           break; 
       }
 
+      // Required for timing
       wait(); 
       wait(); 
   }  
 }
 
-
-        // wait();
-        // wait(); 
-
-        // ld_t1_in.write(0);
-        // ld_t0_in.write(0);
-        // ld_c_in.write(0); 
-        // ld_aHigh_in.write(0); 
-
-        // //Load output Registers
-        // ld_cLow_out.write(1); 
-        // ld_cHigh_out.write(1); 
-        // ld_t0_out.write(1);
-        // ld_t1_out.write(1); 
-        // ld_aHigh_out.write(1); 
-
-        // wait(); 
-        // wait(); 
-  
-        // // Get values from output registers (for bonus)
-        // cLow = cLow_out.read(); 
-        // cHigh = cHigh_out.read(); 
-        // t[0] = t0_out.read();
-        // t[1] = t1_out.read(); 
-        // aHigh = aHigh_out.read();
-
-        // //Disable loads Output Registers
-        // ld_t0_out.write(0);
-        // ld_t1_out.write(0); 
-        // ld_aHigh_out.write(0); 
-
-        // wait(); 
-        // wait(); 

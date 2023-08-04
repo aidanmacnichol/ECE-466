@@ -24,26 +24,20 @@ SC_MODULE (dh_hw)
 
   //Constants
   sc_signal<NN_DIGIT> const_MAXNNDIGIT, const_1;
-
   //t[1] Path
   sc_signal<NN_DIGIT> t1, Bsub_multp, multp_Csub, Dhtf_Csub, Csub_Dsub, Bmult_Dsub, Dsub_t1regout, t1_out;
   sc_signal<bool> comp_multp;
-
   //t[0] Path
   sc_signal<NN_DIGIT> t0, Asub_comp, t0_out, toHH_out, Esub_comp; 
-
   //c path
   sc_signal<NN_DIGIT> c_med, a_half_to_full_out, b_half_to_full_out, Amult_hwtoHH;
   sc_signal<NN_HALF_DIGIT> AhwHH_out, cHigh_out, hwLH_out, cLow_out; 
-
   //aHigh path 
   sc_signal<NN_DIGIT> Chalf_to_full_out; 
   sc_signal<NN_HALF_DIGIT> aHigh_med, aHigh_out;
-
   //Register Loads
   sc_signal<bool> ld_c_in, ld_t0_in, ld_t1_in, ld_aHigh_in, ld_cHigh_in, ld_cLow_in; 
   sc_signal<bool> ld_c_out, ld_t0_out, ld_t1_out, ld_aHigh_out, ld_cHigh_out, ld_cLow_out; 
-
   //Bonus Part
   sc_signal<NN_DIGIT> t0new, t1new; 
   sc_signal<NN_HALF_DIGIT> AHnew; 

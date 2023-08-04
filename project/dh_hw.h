@@ -23,26 +23,31 @@ SC_MODULE (dh_hw)
   // Interconnections:
 
   //Constants
-  sc_signal <NN_DIGIT> const_MAXNNDIGIT, const_1;
+  sc_signal<NN_DIGIT> const_MAXNNDIGIT, const_1;
 
   //t[1] Path
-  sc_signal <NN_DIGIT> t1, Bsub_multp, multp_Csub, Dhtf_Csub, Csub_Dsub, Bmult_Dsub, Dsub_t1regout, t1_out;
-  sc_signal <bool> comp_multp;
+  sc_signal<NN_DIGIT> t1, Bsub_multp, multp_Csub, Dhtf_Csub, Csub_Dsub, Bmult_Dsub, Dsub_t1regout, t1_out;
+  sc_signal<bool> comp_multp;
 
   //t[0] Path
-  sc_signal <NN_DIGIT> t0, Asub_comp, t0_out, toHH_out, Esub_comp; 
+  sc_signal<NN_DIGIT> t0, Asub_comp, t0_out, toHH_out, Esub_comp; 
 
   //c path
-  sc_signal <NN_DIGIT> c_med, a_half_to_full_out, b_half_to_full_out, Amult_hwtoHH;
-  sc_signal <NN_HALF_DIGIT> AhwHH_out, cHigh_out, hwLH_out, cLow_out; 
+  sc_signal<NN_DIGIT> c_med, a_half_to_full_out, b_half_to_full_out, Amult_hwtoHH;
+  sc_signal<NN_HALF_DIGIT> AhwHH_out, cHigh_out, hwLH_out, cLow_out; 
 
   //aHigh path 
-  sc_signal <NN_DIGIT> Chalf_to_full_out; 
-  sc_signal <NN_HALF_DIGIT> aHigh_med, aHigh_out;
+  sc_signal<NN_DIGIT> Chalf_to_full_out; 
+  sc_signal<NN_HALF_DIGIT> aHigh_med, aHigh_out;
 
   //Register Loads
-  sc_signal <bool> ld_c_in, ld_t0_in, ld_t1_in, ld_aHigh_in, ld_cHigh_in, ld_cLow_in; 
-  sc_signal <bool> ld_c_out, ld_t0_out, ld_t1_out, ld_aHigh_out, ld_cHigh_out, ld_cLow_out;   
+  sc_signal<bool> ld_c_in, ld_t0_in, ld_t1_in, ld_aHigh_in, ld_cHigh_in, ld_cLow_in; 
+  sc_signal<bool> ld_c_out, ld_t0_out, ld_t1_out, ld_aHigh_out, ld_cHigh_out, ld_cLow_out; 
+
+  //Bonus Part
+  sc_signal<NN_DIGIT> t0new, t1new; 
+  sc_signal<NN_HALF_DIGIT> AHnew; 
+  sc_signal<bool> bonus_ready; 
 
 
   
@@ -51,7 +56,7 @@ SC_MODULE (dh_hw)
   //Full Digit Registers
   reg creg_in, t1reg_in, t0reg_in,  t0reg_out, t1reg_out;
   //Half Digit Registers
-  half_digit_reg aHighreg_in, aHighreg_out, cLowreg_out, cHighreg_out; 
+  half_digit_reg aHighreg_in, aHighreg_out; 
   //Multipliers
   multiply Amultiplier, Bmultiplier; 
   //Subtractors
@@ -70,12 +75,14 @@ SC_MODULE (dh_hw)
   hw_low_half Ahw_low_half; 
   //Half to Full digit 
   half_to_full Ahalf_to_full, Bhalf_to_full, Chalf_to_full; 
+  //Bonus Module
+  bonus BONUS; 
 
   SC_CTOR(dh_hw):
   //Full Digit Registers
   creg_in("creg_in"), t1reg_in("t1reg_in"), t0reg_in("t0reg_in"), t0reg_out("t0reg_out"), t1reg_out("t1reg_out"),
   //Half Digit Registers
-  aHighreg_in("aHighreg_in"), aHighreg_out("aHighreg_out"), cLowreg_out("cLowreg_out"), cHighreg_out("cHighreg_out"),
+  aHighreg_in("aHighreg_in"), aHighreg_out("aHighreg_out"),
   //Multipliers
   Amultiplier("Amultiplier"), Bmultiplier("Bmultiplier"),
   //Subtractors
@@ -90,7 +97,10 @@ SC_MODULE (dh_hw)
   //HW_LOW_HALF
   Ahw_low_half("Ahw_low_half"),
   //HALF_DIGIT to FULL_DIGIT  
-    Ahalf_to_full("Ahalf_to_full"), Bhalf_to_full("Bhalf_to_full"), Chalf_to_full("Chalf_to_full") 
+  Ahalf_to_full("Ahalf_to_full"), Bhalf_to_full("Bhalf_to_full"), Chalf_to_full("Chalf_to_full"), 
+  //Bonus Module
+  BONUS("BONUS")
+
   {
 
     //Write Constants
@@ -105,11 +115,9 @@ SC_MODULE (dh_hw)
   multiplexor.input1(t1); multiplexor.input2(Bsub_multp); multiplexor.control(comp_multp); multiplexor.out(multp_Csub);
   Csubtractor.input1(multp_Csub); Csubtractor.input2(Dhtf_Csub); Csubtractor.out(Csub_Dsub);
   Dsubtractor.input1(Csub_Dsub); Dsubtractor.input2(Bmult_Dsub); Dsubtractor.out(Dsub_t1regout);
-  t1reg_out.clk(clk); t1reg_out.input(Dsub_t1regout); t1reg_out.load(ld_t1_out); t1reg_out.out(t1_out);
 
   //-------------------------------------t[0] datapath--------------------------------------------
   t0reg_in.clk(clk); t0reg_in.input(from_sw0); t0reg_in.load(ld_t0_in); t0reg_in.out(t0);
-  t0reg_out.clk(clk); t0reg_out.input(Asub_comp); t0reg_out.load(ld_t0_out); t0reg_out.out(t0_out);
   Asubtractor.input1(t0); Asubtractor.input2(toHH_out); Asubtractor.out(Asub_comp); 
   Acomperator.input1(Asub_comp); Acomperator.input2(Esub_comp); Acomperator.ls_Out(comp_multp); 
 
@@ -120,8 +128,9 @@ SC_MODULE (dh_hw)
   Ahalf_to_full.input(AhwHH_out); Ahalf_to_full.out(a_half_to_full_out); 
   Bhalf_to_full.input(hwLH_out); Bhalf_to_full.out(b_half_to_full_out);
   //cLow and cHigh output here
-  cLowreg_out.clk(clk); cLowreg_out.input(hwLH_out); cLowreg_out.load(ld_cLow_out); cLowreg_out.out(cLow_out); 
-  cHighreg_out.clk(clk); cHighreg_out.input(AhwHH_out); cHighreg_out.load(ld_cHigh_out); cHighreg_out.out(cHigh_out);
+  // cLowreg_out.clk(clk); cLowreg_out.input(hwLH_out); cLowreg_out.load(ld_cLow_out); cLowreg_out.out(cLow_out); 
+  // cHighreg_out.clk(clk); cHighreg_out.input(AhwHH_out); cHighreg_out.load(ld_cHigh_out); cHighreg_out.out(cHigh_out);
+
   Amultiplier.input1(b_half_to_full_out); Amultiplier.input2(Chalf_to_full_out); Amultiplier.out(Amult_hwtoHH); 
   Bmultiplier.input1(a_half_to_full_out); Bmultiplier.input2(Chalf_to_full_out); Bmultiplier.out(Bmult_Dsub); 
   Ahw_to_high_half.input(Amult_hwtoHH); Ahw_to_high_half.out(toHH_out);
@@ -130,8 +139,18 @@ SC_MODULE (dh_hw)
 
   //-----------------------------------aHigh datapath-------------------------------------------------
   aHighreg_in.clk(clk); aHighreg_in.input(from_sw3); aHighreg_in.load(ld_aHigh_in); aHighreg_in.out(aHigh_med); 
-  Chalf_to_full.input(aHigh_med); Chalf_to_full.out(Chalf_to_full_out);
-  aHighreg_out.clk(clk); aHighreg_out.input(aHigh_med); aHighreg_out.load(ld_aHigh_out); aHighreg_out.out(aHigh_out); 
+  Chalf_to_full.input(aHigh_med); Chalf_to_full.out(Chalf_to_full_out); 
+
+  //-----------------------------------BONUS MODULE---------------------------------------------------
+
+  BONUS.T0(Asub_comp); BONUS.T1(Dsub_t1regout); BONUS.C(c_med); BONUS.AH(aHigh_med);
+  BONUS.T0new(t0new); BONUS.T1new(t1new); BONUS.AHnew(AHnew); 
+  BONUS.clock(clk); BONUS.ready(bonus_ready);
+
+  t1reg_out.clk(clk); t1reg_out.input(t1new); t1reg_out.load(ld_t1_out); t1reg_out.out(t1_out);
+  t0reg_out.clk(clk); t0reg_out.input(t0new); t0reg_out.load(ld_t0_out); t0reg_out.out(t0_out);
+  aHighreg_out.clk(clk); aHighreg_out.input(AHnew); aHighreg_out.load(ld_aHigh_out); aHighreg_out.out(aHigh_out);
+
 
   SC_CTHREAD(process_hw, clk.pos()); 
   }

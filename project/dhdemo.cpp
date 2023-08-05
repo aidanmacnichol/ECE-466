@@ -47,7 +47,16 @@ int sc_main(int argc , char *argv[]) {
 	DH_HW.hw_enable(enable);           // hardware-enable input
 	DH_HW.hw_done(done);               // hardware-done output
 
-	sc_start();
+	
+	//For handshaking waveforms
+	sc_trace_file* Tf = sc_create_vcd_trace_file("traces");
+  	Tf->set_time_unit(1, SC_NS); //1ns time unit
+  	sc_trace(Tf, enable  , "Enable" );
+  	sc_trace(Tf, done  , "Done" );
+
+  	sc_start(); 
+
+  	sc_close_vcd_trace_file(Tf);
 
 	return(0);
  

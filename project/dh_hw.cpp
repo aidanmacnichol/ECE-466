@@ -13,6 +13,7 @@
 void dh_hw::process_hw()
 {
 
+  //initially in the wait state
   sc_uint <5> state = WAIT_STATE;
 
   //initially false
